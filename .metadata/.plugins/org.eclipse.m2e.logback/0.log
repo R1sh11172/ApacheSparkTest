@@ -367,3 +367,6 @@
 2023-05-31 10:57:03,075 [Worker-93: Launching SparkModule3] INFO  o.e.m.i.launch.MavenLaunchDelegate -  mvn  -B -Dstyle.color=always eclipse:eclipse
 2023-05-31 10:57:03,551 [Worker-93: Launching SparkModule3] WARN  o.e.m.c.i.embedder.EclipseLogger - The POM for commons-codec:commons-codec:jar:1.15-SNAPSHOT is missing, no dependency information available
 2023-05-31 10:57:04,084 [Worker-93: Launching SparkModule3] WARN  o.e.m.c.i.embedder.EclipseLogger - The POM for commons-codec:commons-codec:jar:1.15-SNAPSHOT is missing, no dependency information available
+2023-06-01 09:24:44,075 [main] INFO  o.e.m2e.actions.ExecutePomAction - Using existing launch configuration
+2023-06-01 09:24:47,492 [Worker-118: Launching SparkModule3] INFO  o.e.m.i.launch.MavenLaunchDelegate - Run build in "/Users/rishianiga/ApacheSparkLearning/SparkModule3":
+2023-06-01 09:24:47,494 [Worker-118: Launching SparkModule3] INFO  o.e.m.i.launch.MavenLaunchDelegate -  mvn  -B -Dstyle.color=always eclipse:eclipse
