@@ -9,7 +9,7 @@ import org.apache.spark.ml.classification.LogisticRegression;
 import org.apache.spark.ml.classification.LogisticRegressionModel;
 import org.apache.spark.ml.classification.LogisticRegressionSummary;
 import org.apache.spark.ml.evaluation.RegressionEvaluator;
-import org.apache.spark.ml.feature.OneHotEncoderEstimator;
+import org.apache.spark.ml.feature.OneHotEncoder;
 import org.apache.spark.ml.feature.StringIndexer;
 import org.apache.spark.ml.feature.VectorAssembler;
 import org.apache.spark.ml.param.ParamMap;
@@ -41,12 +41,12 @@ public class VPPChapterViewsLogistic {
 		
 		csvData = csvData.filter("is_cancelled = false").drop("observation_date","is_cancelled");
 		
-		//1 - customers watched no videos, 0 - customers watched some videos
+		//1 represents customers who watched no videos, 0 means customer watched some videos
 		
 		csvData = csvData.withColumn("firstSub", when( col("firstSub").isNull(), 0 ).otherwise(col("firstSub")) )
 				.withColumn("all_time_views", when (col("all_time_views").isNull(),0).otherwise(col("all_time_views")))
 				.withColumn("last_month_views", when (col("last_month_views").isNull(),0).otherwise(col("last_month_views")))
-				.withColumn("next_month_views", when (col("next_month_views").$greater(0), 0).otherwise(1));
+				.withColumn("next_month_views", when (col("next_month_views").$greater(0), 0).otherwise(1)); //this method checks if value in col is greater than input parameter
 		
 		csvData = csvData.withColumnRenamed("next_month_views", "label");
 		
@@ -69,7 +69,7 @@ public class VPPChapterViewsLogistic {
 				.fit(csvData)
 				.transform(csvData);
 		
-		OneHotEncoderEstimator encoder = new OneHotEncoderEstimator();
+		OneHotEncoder encoder = new OneHotEncoder();
 		csvData = encoder.setInputCols(new String[] {"payIndex","countryIndex","periodIndex"})
 			.setOutputCols(new String[] {"payVector","countryVector","periodVector"})
 			.fit(csvData).transform(csvData);

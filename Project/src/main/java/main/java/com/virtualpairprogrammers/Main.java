@@ -16,114 +16,83 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
+import org.apache.spark.sql.RowFactory;
 import org.apache.spark.sql.SparkSession;
 import org.apache.spark.sql.types.DataTypes;
+import org.apache.spark.sql.types.Metadata;
+import org.apache.spark.sql.types.StructField;
+import org.apache.spark.sql.types.StructType;
+
+
 
 import static org.apache.spark.sql.functions.*;
 
 import scala.Tuple2;
 
 public class Main {
-
+	@SuppressWarnings("resource")
 	public static void main(String[] args) {
 		
-		System.setProperty("hadoop.home.dir", "c:/hadoop");
+		//System.setProperty("hadoop.home.dir", "/Users/rishianiga/Downloads/Practicals/winutils-extra/hadoop");
 		Logger.getLogger("org.apache").setLevel(Level.WARN);
 		
-		// SparkConf conf = new SparkConf().setAppName("startingSpark").setMaster("local[*]");
-		// JavaSparkContext sc = new JavaSparkContext(conf);
-		
 		SparkSession spark = SparkSession.builder().appName("testingSql").master("local[*]")
-                .config("spark.sql.warehouse.dir","file:///c:/tmp/")
                 .getOrCreate();
 
-		//Dataset<Row> dataset = spark.read().option("header", true).csv("src/main/resources/exams/students.csv");
-		Dataset<Row> dataset = spark.read().option("header", true).csv("src/main/resources/biglog.txt");
+		Dataset<Row> dataset = spark.read().option("header", true).csv("src/main/resources/exams/students.csv");
+		dataset.show();
 		
-		// Dataset<Row> modernArtResults = dataset.filter("subject = 'Modern Art' AND year >= 2007 ");
-
+		//long numberOfRows = dataset.count();
+		//System.out.println(numberOfRows);
+		
+		Row firstRow = dataset.first();
+		String subject = firstRow.getAs("subject").toString();
+		int year = Integer.parseInt(firstRow.getAs("year"));
+		
+		Dataset<Row> modernArtResults = dataset.filter("subject = 'Modern Art' AND year >= 2007 ");
+//		Dataset<Row> modernArtResults = dataset2.filter("select * from students where subject = 'Modern Art' AND year >= 2007 ");
+		
+		
+//		Dataset<Row> modernArtResults = dataset.filter( row -> row.getAs("subject").equals("Modern Art")
+//									&& Integer.parseInt(row.getAs("year")) >= 2007);			
 //		Dataset<Row> modernArtResults = dataset.filter(col("subject").equalTo("Modern Art")
 //									.and(col("year").geq(2007)));
+		modernArtResults.show();
 //
-//		modernArtResults.show();
-
-		dataset = dataset.select(col("level"),
-                date_format(col("datetime"), "MMMM").alias("month"), 
-                date_format(col("datetime"), "M").alias("monthnum").cast(DataTypes.IntegerType) );
+//		dataset = dataset.select(col("level"),
+//                date_format(col("datetime"), "MMMM").alias("month"), 
+//                date_format(col("datetime"), "M").alias("monthnum").cast(DataTypes.IntegerType) );
+//		
+//		dataset.groupBy(col("level"), col("month"), col("monthnum")).count();
+//		dataset = dataset.orderBy(col("monthnum"));
+//		dataset = dataset.drop(col("monthnum"));
+//
+//		dataset.show(100);
+//		
+		Dataset<Row> dataset2 = spark.read().option("header", true).csv("src/main/resources/biglog.txt");
+		dataset2.createOrReplaceTempView("logging_table");
+		Dataset<Row> results = spark.sql
+		  ("select level, date_format(datetime,'MMMM') as month, count(1) as total " + 
+		   "from logging_table group by level, month order by cast(first(date_format(datetime,'M')) as int), level");	
 		
-		dataset.groupBy(col("level"), col("month"), col("monthnum")).count();
-		dataset = dataset.orderBy(col("monthnum"));
-		dataset = dataset.drop(col("monthnum"));
+		
+//		dataset.createOrReplaceTempView("my_students_table"); //alternate name in memory
+//		Dataset<Row> results = spark.sql("select score, year from my_students_table where subject='French'");
+//		results.show();
 
-		dataset.show(100);
+//		List<Row> inMemory = new ArrayList<Row>();
+//		inMemory.add(RowFactory.create("WARN", "16 December 18 04:19:32"));
+//		StructField[] fields = new StructField[] {
+//				new StructField("level", DataTypes.StringType, false, Metadata.empty()),
+//				new StructField("datetime", DataTypes.StringType, false, Metadata.empty())
+//		};
+//		StructType schema = new StructType(fields);
+//		spark.createDataFrame(inMemory, schema);
+		
+		
+		
 		
 		spark.close();
-
-		
-		
-		
-		
-		
-//		JavaRDD<String> initialRdd = sc.textFile("src/main/resources/subtitles/input.txt");
-//		
-//		JavaRDD<String> lettersOnlyRdd = initialRdd.map( sentence -> sentence.replaceAll("[^a-zA-Z\\s]", "").toLowerCase() );
-//		
-		
-//		JavaRDD<String> removedBlankLines = lettersOnlyRdd.filter( sentence -> sentence.trim().length() > 0 );
-//		
-//		JavaRDD<String> justWords = removedBlankLines.flatMap(sentence -> Arrays.asList(sentence.split(" ")).iterator());
-//		
-//		JavaRDD<String> blankWordsRemoved = justWords.filter(word -> word.trim().length() > 0);
-//		
-//		JavaRDD<String> justInterestingWords = blankWordsRemoved.filter(word -> Util.isNotBoring(word));
-//		
-//		JavaPairRDD<String, Long> pairRdd = justInterestingWords.mapToPair(word -> new Tuple2<String, Long>(word, 1L));
-//		
-//		JavaPairRDD<String, Long> totals = pairRdd.reduceByKey((value1, value2) -> value1 + value2);
-//		
-//		JavaPairRDD<Long, String> switched = totals.mapToPair(tuple -> new Tuple2<Long, String> (tuple._2, tuple._1 ));
-//		
-//		JavaPairRDD<Long, String> sorted = switched.sortByKey(false);
-//		
-//		List<Tuple2<Long,String>> results = sorted.take(10);
-//		
-//		results.forEach(System.out::println);		
-//		
-		
-		
-		
-		
-		
-		
-		
-		//JavaRDD<String> initialRdd = sc.textFile("src/main/resources/subtitles/input.txt");
-		
-		
-		
-//		JavaRDD<Integer> myRDD = sc.parallelize(inputData);
-//		sc.parallelize(inputData)
-//			.flatMap(value -> Arrays.asList(value.split(" ")).iterator())
-//			.filter(word -> word.length() > 1) 
-//			.collect().forEach(System.out::println);
-		
-		//Integer result = myRDD.reduce((value1, value2) -> value1 + value2);
-		
-		//JavaRDD<IntegerWithSquareRoot> sqrtRdd = myRDD.map( value -> new IntegerWithSquareRoot(value) ); //because RDD are immutable
-		//JavaRDD<Tuple2<Integer, Double>> sqrtRdd = myRDD.map( value -> new Tuple2<> (value, Math.sqrt(value)) ); //because RDD are immutable
-
-		//Tuple2<Integer, Double> myValue = new Tuple2<> (9, 3.0);
-//		sqrtRdd.collect().forEach( System.out::println );
-		
-//		System.out.println(result);
-		
-//		//how many elements in sqrtRdd
-//		System.out.println(sqrtRdd.count());
-//		//count with map and reduce
-//		JavaRDD<Long> singleIntegerRdd = sqrtRdd.map( value -> 1L);
-//		Long count = singleIntegerRdd.reduce((value1, value2) -> value1 + value2);
-//		System.out.println(count);
-		
-		//sc.close();
 	}
 
 }

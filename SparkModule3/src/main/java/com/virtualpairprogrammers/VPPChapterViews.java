@@ -3,7 +3,7 @@ package com.virtualpairprogrammers;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.spark.ml.evaluation.RegressionEvaluator;
-import org.apache.spark.ml.feature.OneHotEncoderEstimator;
+import org.apache.spark.ml.feature.OneHotEncoder;
 import org.apache.spark.ml.feature.StringIndexer;
 import org.apache.spark.ml.feature.VectorAssembler;
 import org.apache.spark.ml.param.ParamMap;
@@ -43,7 +43,6 @@ public class VPPChapterViews {
 		csvData = csvData.withColumnRenamed("next_month_views", "label");
 		
 		StringIndexer payMethodIndexer = new StringIndexer();
-		
 		csvData = payMethodIndexer.setInputCol("payment_method_type")
 			.setOutputCol("payIndex")
 			.fit(csvData)
@@ -61,7 +60,7 @@ public class VPPChapterViews {
 				.fit(csvData)
 				.transform(csvData);
 		
-		OneHotEncoderEstimator encoder = new OneHotEncoderEstimator();
+		OneHotEncoder encoder = new OneHotEncoder();
 		csvData = encoder.setInputCols(new String[] {"payIndex","countryIndex","periodIndex"})
 			.setOutputCols(new String[] {"payVector","countryVector","periodVector"})
 			.fit(csvData).transform(csvData);
